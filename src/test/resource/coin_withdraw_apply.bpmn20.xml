@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="coin_withdraw_apply" name="提币审核" isExecutable="true">
+    <startEvent id="startevent1" name="提币申请"/>
+    <userTask id="usertask1" name="运营审批" activiti:candidateGroups="Operator">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.simai.gccx.modules.activiti.listener.OperationAssignmentListener"/>
+      </extensionElements>
+    </userTask>
+    <userTask id="usertask2" name="部门经理审批" activiti:candidateGroups="Manager">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.simai.gccx.modules.activiti.listener.ManagerAssignmentListener"/>
+      </extensionElements>
+    </userTask>
+    <endEvent id="endevent1" name="流程正常结束"/>
+    <endEvent id="endevent3" name="驳回，提币失败"/>
+    <userTask id="usertask3" name="财务打款" activiti:candidateGroups="FinanceStaff">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.simai.gccx.modules.activiti.listener.FinanceAssignmentListener"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow9" name="财务拒绝" sourceRef="usertask3" targetRef="endevent3">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.simai.gccx.modules.activiti.listener.RejectProcessListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approveStatus=="reject"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow6" name="运营拒绝" sourceRef="usertask1" targetRef="endevent3">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.simai.gccx.modules.activiti.listener.RejectProcessListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approveStatus=="reject"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow7" name="经理拒绝" sourceRef="usertask2" targetRef="endevent3">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.simai.gccx.modules.activiti.listener.RejectProcessListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approveStatus=="reject"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow3" name="部门经理审批" sourceRef="usertask2" targetRef="usertask3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approveStatus=="pass"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow2" name="运营审批通过" sourceRef="usertask1" targetRef="usertask2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approveStatus=="pass"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow11" name="二级审核（财务）" sourceRef="startevent1" targetRef="usertask3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ amount >= firstReviewAmount && amount < secondReviewAmount}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow1" name="三级审核" sourceRef="startevent1" targetRef="usertask1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${amount >=secondReviewAmount}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow10" name="财务审批通过" sourceRef="usertask3" targetRef="endevent1">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.simai.gccx.modules.activiti.listener.SuccessProcessListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approveStatus=="pass"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow5" name="一级审核（程序）" sourceRef="startevent1" targetRef="endevent1">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.simai.gccx.modules.activiti.listener.SuccessProcessListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${amount <firstReviewAmount}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_coin_withdraw_apply">
+    <bpmndi:BPMNPlane bpmnElement="coin_withdraw_apply" id="BPMNPlane_coin_withdraw_apply">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="30.0" width="30.0" x="45.0" y="150.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+        <omgdc:Bounds height="55.0" width="105.0" x="255.0" y="45.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask2" id="BPMNShape_usertask2">
+        <omgdc:Bounds height="55.0" width="105.0" x="530.0" y="140.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="28.0" width="28.0" x="405.0" y="420.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent3" id="BPMNShape_endevent3">
+        <omgdc:Bounds height="28.0" width="28.0" x="568.5" y="0.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask3" id="BPMNShape_usertask3">
+        <omgdc:Bounds height="55.0" width="105.0" x="800.0" y="140.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="60.0" y="150.0"/>
+        <omgdi:waypoint x="60.0" y="80.0"/>
+        <omgdi:waypoint x="255.0" y="74.0909090909091"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="360.0" y="90.63636363636364"/>
+        <omgdi:waypoint x="530.0" y="149.36363636363637"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="635.0" y="167.5"/>
+        <omgdi:waypoint x="800.0" y="167.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="60.0" y="180.0"/>
+        <omgdi:waypoint x="60.0" y="434.0"/>
+        <omgdi:waypoint x="405.0" y="434.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="307.2689075630252" y="45.0"/>
+        <omgdi:waypoint x="307.0" y="13.0"/>
+        <omgdi:waypoint x="568.5000922253989" y="13.949183637841738"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="582.5" y="140.0"/>
+        <omgdi:waypoint x="582.5" y="28.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="852.4484052532833" y="195.0"/>
+        <omgdi:waypoint x="852.0" y="434.0"/>
+        <omgdi:waypoint x="433.0" y="434.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="73.89576726330547" y="170.64868587939247"/>
+        <omgdi:waypoint x="429.0" y="315.0"/>
+        <omgdi:waypoint x="800.0" y="185.78512396694214"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="852.4104234527688" y="140.0"/>
+        <omgdi:waypoint x="852.0" y="14.0"/>
+        <omgdi:waypoint x="596.5" y="13.999999999999996"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,16 @@
+server:
+  port: 9009
+spring:
+  application:
+    name: manage-service
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    username: gccx
+    password: nKzcop0SqLj_7PZ
+    url: jdbc:mysql://172.16.0.3:3306/gccx_test?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+  activiti:
+    ##自动部署processes下的bpmn文件
+    check-process-definitions: false
+    ##自动建表（建表完成后设为 false）
+    database-schema-update: true
